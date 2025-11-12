@@ -1,101 +1,203 @@
 import { Instance } from "cs_script/point_script";
 
-// by 凯岩城的狼
-// 在CT阵营获胜时有概率在CT玩家脚下生成@ct_win实体
-
-const CT_TEAM = 3;
-const SPAWN_PROBABILITY = 0.4;
-const PLAYER_SPAWN_Z_OFFSET = 42;
-const REWARD_LIFETIME = 30.0;
-
 const state = {
-    cachedTemplate: null,
+    target: null,
+    speed: 0.0,
+    speedAcceleration: 0.08,
+    speedMax: 12.0,
+    retarget: 14,
+    lastThinkTime: 0,
+    isActive: false,
+    cachedSelf: null,
     lastCacheTime: 0
 };
 
-function Init() {
+class Vector3 {
+    constructor(x, y, z) {
+        if (y === undefined && z === undefined) {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+        } else {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+
+    Length() {
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+    }
+
+    Normalized() {
+        const len = this.Length();
+        if (len === 0) return new Vector3(0, 0, 0);
+        return new Vector3(this.x / len, this.y / len, this.z / len);
+    }
+
+    Add(vector) {
+        return new Vector3(this.x + vector.x, this.y + vector.y, this.z + vector.z);
+    }
+
+    Subtract(vector) {
+        return new Vector3(this.x - vector.x, this.y - vector.y, this.z - vector.z);
+    }
+
+    MultiplyScalar(scalar) {
+        return new Vector3(this.x * scalar, this.y * scalar, this.z * scalar);
+    }
+
+    Distance(vector) {
+        return this.Subtract(vector).Length();
+    }
 }
 
-// 监听回合结束事件
-Instance.OnRoundEnd((event) => {
+function Tick() {
     try {
-        // 检查是否为CT获胜
-        if (event.winningTeam === CT_TEAM) {
-            // 随机决定是否生成奖励
-            if (Math.random() < SPAWN_PROBABILITY) {
-                SpawnCTWinReward();
-            }
-        }
-    } catch (error) {
-    }
-});
-
-// 在CT玩家脚下生成@ct_win实体
-function SpawnCTWinReward() {
-    try {
-        // 获取所有CT玩家
-        const allPlayers = Instance.FindEntitiesByClass("player");
-        const ctPlayers = [];
-        
-        for (const player of allPlayers) {
-            if (player && player.IsValid() && player.IsAlive() && player.GetTeamNumber() === CT_TEAM) {
-                const playerController = player.GetPlayerController();
-                if (playerController) {
-                    ctPlayers.push(player);
-                }
-            }
-        }
-        
-        if (ctPlayers.length === 0) {
+        if (!state.isActive) {
+            Instance.SetNextThink(0.1);
             return;
         }
-        
-        const selectedPlayer = ctPlayers[Math.floor(Math.random() * ctPlayers.length)];
-        const playerPos = selectedPlayer.GetAbsOrigin();
-        const spawnPos = {
-            x: playerPos.x,
-            y: playerPos.y,
-            z: playerPos.z + PLAYER_SPAWN_Z_OFFSET
-        };
-        
+
         const currentTime = Instance.GetGameTime();
-        if (currentTime - state.lastCacheTime > 30 || !state.cachedTemplate || !state.cachedTemplate.IsValid()) {
-            state.cachedTemplate = Instance.FindEntityByName("@ct_win");
+        state.lastThinkTime = currentTime;
+        
+        if (currentTime - state.lastCacheTime > 5 || !state.cachedSelf || !state.cachedSelf.IsValid()) {
+            state.cachedSelf = Instance.FindEntityByName("eyes_boom");
             state.lastCacheTime = currentTime;
         }
         
-        const ctWinTemplate = state.cachedTemplate;
-        if (!ctWinTemplate || !ctWinTemplate.IsValid()) {
+        const self = state.cachedSelf;
+        if (!self || !self.IsValid()) {
+            Instance.SetNextThink(0.1);
             return;
         }
-        
-        const entities = ctWinTemplate.ForceSpawn(spawnPos, { pitch: 0, yaw: 0, roll: 0 });
-        
-        if (entities && entities.length > 0) {
-            for (const ent of entities) {
-                Instance.EntFireAtTarget({
-                    target: ent,
-                    input: "Kill",
-                    value: "",
-                    delay: REWARD_LIFETIME
-                });
+
+        if (state.target && state.target.IsValid() && state.target.IsAlive()) {
+            state.retarget -= 0.02;
+
+            const selfPos = self.GetAbsOrigin();
+            const targetPos = state.target.GetAbsOrigin();
+            targetPos.z += 48;
+            if (state.retarget <= 0.0) {
+                SearchTarget();
             }
+            const direction = new Vector3(
+                targetPos.x - selfPos.x,
+                targetPos.y - selfPos.y,
+                targetPos.z - selfPos.z
+            ).Normalized();
+
+            const angles = VectorToAngles(direction);
+            self.Teleport({ angles: angles });
+
+            const newPos = new Vector3(selfPos).Add(direction.MultiplyScalar(state.speed));
+            self.Teleport({ position: newPos });
+
+            if (state.speed < state.speedMax) {
+                state.speed += state.speedAcceleration;
+            }
+        } else {
+            SearchTarget();
+        }
+
+        Instance.SetNextThink(0.05);
+    } catch (error) {
+        Instance.SetNextThink(0.1);
+    }
+}
+
+function SearchTarget() {
+    try {
+        if (state.target && state.target.IsValid() && state.target.IsAlive()) {
+            return;
+        }
+
+        state.target = null;
+        state.speed = 0.0;
+
+        const currentTime = Instance.GetGameTime();
+        if (currentTime - state.lastCacheTime > 5 || !state.cachedSelf || !state.cachedSelf.IsValid()) {
+            state.cachedSelf = Instance.FindEntityByName("eyes_boom");
+            state.lastCacheTime = currentTime;
         }
         
+        const self = state.cachedSelf;
+        if (!self || !self.IsValid()) return;
+
+        const selfPos = self.GetAbsOrigin();
+        const players = Instance.FindEntitiesByClass("player");
+        let nearestPlayer = null;
+        let nearestDist = 1e12;
+
+        for (const player of players) {
+            if (!player || !player.IsValid() || !player.IsAlive()) continue;
+            if (player.GetTeamNumber() !== 3) continue;
+
+            const playerPos = player.GetAbsOrigin();
+            playerPos.z += 48;
+            const dx = playerPos.x - selfPos.x;
+            const dy = playerPos.y - selfPos.y;
+            const dz = playerPos.z - selfPos.z;
+            const distSq = dx*dx + dy*dy + dz*dz;
+            if (distSq < nearestDist) {
+                nearestDist = distSq;
+                nearestPlayer = player;
+            }
+        }
+
+        if (nearestPlayer) {
+            state.retarget = 14;
+            state.target = nearestPlayer;
+        }
     } catch (error) {
     }
 }
 
-Instance.OnScriptInput("test_ct_win", () => {
-    SpawnCTWinReward();
-});
+function VectorToAngles(forward) {
+    let yaw, pitch;
+    
+    if (forward.y === 0 && forward.x === 0) {
+        yaw = 0;
+        pitch = forward.z > 0 ? 270 : 90;
+    } else {
+        yaw = Math.atan2(forward.y, forward.x) * 180 / Math.PI;
+        if (yaw < 0) yaw += 360;
 
-Instance.OnActivate(() => {
-    Init();
-});
+        const tmp = Math.sqrt(forward.x * forward.x + forward.y * forward.y);
+        pitch = Math.atan2(-forward.z, tmp) * 180 / Math.PI;
+        if (pitch < 0) pitch += 360;
+    }
+    
+    return { pitch, yaw, roll: 0 };
+}
 
-Instance.OnScriptReload({
-    after: () => {
-        Init();
+function StartTracking() {
+    state.isActive = true;
+    state.speed = 0.0;
+    state.retarget = 14;
+    SearchTarget();
+}
+
+function StopTracking() {
+    state.isActive = false;
+    state.target = null;
+    state.speed = 0.0;
+}
+
+Instance.OnActivate(() => {});
+Instance.OnScriptReload({ after: () => {} });
+Instance.OnScriptInput("start", () => {
+    try {
+        StartTracking();
+    } catch (error) {
     }
 });
+Instance.OnScriptInput("stop", () => {
+    try {
+        StopTracking();
+    } catch (error) {
+    }
+});
+Instance.SetThink(Tick);
+Instance.SetNextThink(0.1);
