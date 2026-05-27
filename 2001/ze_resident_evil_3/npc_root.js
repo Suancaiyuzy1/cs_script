@@ -493,10 +493,10 @@ function runSchedulerTick() {
 }
 Instance.SetThink(() => {
 	// This has to run every tick
-	Instance.SetNextThink(Instance.GetGameTime());
+	Instance.SetNextThink(Instance.GetGameTime() + 0.1);
 	runSchedulerTick();
 });
-Instance.SetNextThink(Instance.GetGameTime());
+Instance.SetNextThink(Instance.GetGameTime() + 0.1);
 Instance.OnScriptReload({ after: (undefined$1) => {
 	CLEAR_ALL_INTERVAL = false;
 }});
@@ -1365,7 +1365,7 @@ class class_npc_zombie
 			}
 			iAlpha -= 3;
 			Instance.EntFireAtTarget({target: this.lModel, input: "Alpha", value: "" + iAlpha})
-		}, 0.05 * 1000);
+		}, 0.1 * 1000);
 
 		}, fDelay * 1000);
 	}
