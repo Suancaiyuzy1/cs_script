@@ -2,7 +2,7 @@
 import { Instance } from "cs_script/point_script";
 
 
-const TICKRATE = 0.1;
+const TICKRATE = 0.01;
 const TARGET_DISTANCE = 3000;
 let SPEED_FORWARD = 220;
 const RETARGET_TIME = 8.00;
@@ -98,7 +98,7 @@ Instance.OnScriptInput("Start", () => {
 		// AutoDetectEntities();
         SetEntities();
 	    ticking = true;
-		Instance.EntFireAtName({ name: boss_script_ent, input: "runscriptinput", value: "Tick", delay: TICKRATE });
+		Instance.EntFireAtName({ name: boss_script_ent, input: "runscriptinput", value: "Tick", delay: 0.00 });
 	}
 });
 

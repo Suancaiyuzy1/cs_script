@@ -88,7 +88,7 @@ Instance.OnScriptInput("PickUp_Kar", (Activator_Caller_Data) => {
 
             return;
         }
-    }, 0.1 * 1000);
+    }, 0.05 * 1000);
 })
 
 function IsValidAlive(player)
@@ -110,8 +110,8 @@ Instance.OnRoundEnd((stuff) => {
     CLEAR_ALL_INTERVAL = true;
 });
 Instance.SetThink(() => {
-	// Drive scheduled tasks at the minimum accepted interval.
-	Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+	// This has to run every tick
+	Instance.SetNextThink(Instance.GetGameTime());
 	runSchedulerTick();
 });
-Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+Instance.SetNextThink(Instance.GetGameTime());

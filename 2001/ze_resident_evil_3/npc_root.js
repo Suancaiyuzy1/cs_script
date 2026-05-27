@@ -492,11 +492,11 @@ function runSchedulerTick() {
 	}
 }
 Instance.SetThink(() => {
-	// Drive scheduled tasks at the minimum accepted interval.
-	Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+	// This has to run every tick
+	Instance.SetNextThink(Instance.GetGameTime());
 	runSchedulerTick();
 });
-Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+Instance.SetNextThink(Instance.GetGameTime());
 Instance.OnScriptReload({ after: (undefined$1) => {
 	CLEAR_ALL_INTERVAL = false;
 }});
@@ -757,7 +757,7 @@ class class_npc_zombie
 				return;
 			}
 			this.Tick();
-		}, 0.1 * 1000);
+		}, 0.02 * 1000);
 	}
 
 	PostSpawn()
@@ -1363,9 +1363,9 @@ class class_npc_zombie
 				this.KillBaseFull();
 				return;
 			}
-			iAlpha -= 6;
+			iAlpha -= 3;
 			Instance.EntFireAtTarget({target: this.lModel, input: "Alpha", value: "" + iAlpha})
-		}, 0.1 * 1000);
+		}, 0.05 * 1000);
 
 		}, fDelay * 1000);
 	}
