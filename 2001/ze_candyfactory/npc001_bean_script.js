@@ -378,7 +378,7 @@ class BeanNPC {
 
 class BeanNPCManager {
     static instances = new Map();
-    static tickRate = 0.1;
+    static tickRate = 0.01;
     static lastTickTime = 0;
     static tickCount = 0;
 
@@ -415,10 +415,10 @@ Instance.OnActivate(() => {
 
 Instance.SetThink(() => {
     BeanNPCManager.tick();
-    Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+    Instance.SetNextThink(Instance.GetGameTime() + 0.01);
 });
 
-Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+Instance.SetNextThink(Instance.GetGameTime());
 
 Instance.OnRoundStart(() => {
     BeanNPCManager.resetAll();

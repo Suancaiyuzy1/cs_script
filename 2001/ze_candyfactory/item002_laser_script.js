@@ -565,7 +565,7 @@ class Laser {
 
 
 Instance.SetThink(() => {
-    Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+    Instance.SetNextThink(Instance.GetGameTime() + 0.01);
     Item002LaserManager.refreshRegistry();
     for (const laser of Item002LaserManager.instances.values()) {
         if (laser?.laserBase?.IsValid()) {
@@ -574,7 +574,7 @@ Instance.SetThink(() => {
         }
     }
 });
-Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+Instance.SetNextThink(Instance.GetGameTime());
 
 Instance.OnScriptInput("connect_laser", (event) => {
     Item002LaserManager.connect(event.caller);

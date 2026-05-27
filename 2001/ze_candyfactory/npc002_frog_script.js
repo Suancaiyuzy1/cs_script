@@ -443,10 +443,10 @@ Instance.OnActivate(() => {
 
 Instance.SetThink(() => {
     FrogNPCManager.tick();
-    Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+    Instance.SetNextThink(Instance.GetGameTime() + 0.01);
 });
 
-Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+Instance.SetNextThink(Instance.GetGameTime());
 
 Instance.OnRoundStart(() => {
     FrogNPCManager.resetAll();

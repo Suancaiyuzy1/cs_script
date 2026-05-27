@@ -264,14 +264,14 @@ class Heal {
 }
 
 Instance.SetThink(() => {
-    Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+    Instance.SetNextThink(Instance.GetGameTime() + 0.01);
     for (const heal of Item003HealManager.instances.values()) {
         if (heal?.healBase?.IsValid()) {
             heal.updateBalls();
         }
     }
 });
-Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+Instance.SetNextThink(Instance.GetGameTime());
 
 Instance.OnScriptInput("connect_heal", (event) => {
     Item003HealManager.connect(event.caller);

@@ -505,7 +505,7 @@ class Handcannon {
 }
 
 Instance.SetThink(() => {
-    Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+    Instance.SetNextThink(Instance.GetGameTime() + 0.01);
 
     for (const handcannon of Item004HandcannonManager.instances.values()) {
         if (!handcannon?.handcannonBase?.IsValid()) continue;
@@ -519,7 +519,7 @@ Instance.SetThink(() => {
         handcannon.updateCannonMode();
     }
 });
-Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+Instance.SetNextThink(Instance.GetGameTime());
 
 Instance.OnScriptInput("connect_handcannon", (event) => {
     Item004HandcannonManager.connect(event.caller);

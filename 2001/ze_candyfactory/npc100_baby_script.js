@@ -541,7 +541,7 @@ class BabyNPC {
 
 class BabyNPCManager {
     static instance = null;
-    static tickRate = 0.1;
+    static tickRate = 0.01;
     static lastTickTime = 0;
     static tickCount = 0;
 
@@ -602,10 +602,10 @@ Instance.OnActivate(() => {
 
 Instance.SetThink(() => {
     BabyNPCManager.tick();
-    Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+    Instance.SetNextThink(Instance.GetGameTime() + 0.01);
 });
 
-Instance.SetNextThink(Instance.GetGameTime() + 0.1);
+Instance.SetNextThink(Instance.GetGameTime());
 Instance.OnRoundStart(() => {
     BabyNPCManager.reset();
     BabyHelmetManager.reset();
