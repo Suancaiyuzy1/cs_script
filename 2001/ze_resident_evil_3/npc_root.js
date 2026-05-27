@@ -757,7 +757,7 @@ class class_npc_zombie
 				return;
 			}
 			this.Tick();
-		}, 0.02 * 1000);
+		}, 0.1 * 1000);
 	}
 
 	PostSpawn()
