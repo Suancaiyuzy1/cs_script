@@ -88,7 +88,7 @@ Instance.OnScriptInput("PickUp_Kar", (Activator_Caller_Data) => {
 
             return;
         }
-    }, 0.05 * 1000);
+    }, 0.1 * 1000);
 })
 
 function IsValidAlive(player)
@@ -111,7 +111,7 @@ Instance.OnRoundEnd((stuff) => {
 });
 Instance.SetThink(() => {
 	// This has to run every tick
-	Instance.SetNextThink(Instance.GetGameTime());
+	Instance.SetNextThink(Instance.GetGameTime() + 0.1);
 	runSchedulerTick();
 });
-Instance.SetNextThink(Instance.GetGameTime());
+Instance.SetNextThink(Instance.GetGameTime() + 0.1);
