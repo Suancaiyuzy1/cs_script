@@ -2521,12 +2521,12 @@ function TurtleFallDownBoss(inputData) {
     if (getTeam(activator) != 3)
         return;
     if (!extreme) {
-        EntFire('X69XTurtleBossHP1', 'RemoveHealth', '9000', 0.0, activator);
-        EntFire('X69XTurtleBossHP2', 'RemoveHealth', '9000', 0.0, activator);
+        EntFire('X69XTurtleBossHP1', 'RemoveHealth', '4500', 0.0, activator);
+        EntFire('X69XTurtleBossHP2', 'RemoveHealth', '4500', 0.0, activator);
     }
     else {
-        EntFire('X69XTurtleBossHP1', 'RemoveHealth', '1500', 0.0, activator);
-        EntFire('X69XTurtleBossHP2', 'RemoveHealth', '1500', 0.0, activator);
+        EntFire('X69XTurtleBossHP1', 'RemoveHealth', '750', 0.0, activator);
+        EntFire('X69XTurtleBossHP2', 'RemoveHealth', '750', 0.0, activator);
         let pnewhealth = activator.GetHealth() - turtlefalldown_damage;
         if (pnewhealth > 0) {
             setVelocity(activator, Vector(0, 0, 0));
@@ -2731,7 +2731,7 @@ function OverrideBabyFaceHP() {
     //each: 25		(Z:50, will always be this)
     //let hp = caller
     //if (hp != null && hp.IsValid())
-    EntFire('i_diddlebaby_script*', 'RunScriptInput', 'HpAddSet_15', 0.0, null, null);
+    EntFire('i_diddlebaby_script*', 'RunScriptInput', 'HpAddSet_7', 0.0, null, null);
 }
 const cakeheal_extreme = 200;
 const cakeheal_normal = 150;
