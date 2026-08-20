@@ -958,7 +958,7 @@ function getClassname(entity) {
 let visual = null;
 let ticking = false;
 let startTime = 0.0;
-const TOTAL_DURATION = 1.5; // 总时长（秒）
+const TOTAL_DURATION = 2.5; // 总时长（秒）
 const HOLD_DURATION = 1.0; // 保持全亮的时间（秒）
 const DECAY_DURATION = TOTAL_DURATION - HOLD_DURATION; // 0.5 秒
 function Initialize(inputData) {
