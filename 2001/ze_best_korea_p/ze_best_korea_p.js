@@ -2455,30 +2455,25 @@ var CSGearSlot;
 })(CSGearSlot || (CSGearSlot = {}));
 
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-const MIN_SCHEDULER_INTERVAL_SECONDS = 0.1;
-const MIN_SCHEDULER_INTERVAL_MS = MIN_SCHEDULER_INTERVAL_SECONDS * 1000;
-function clampSchedulerMs(ms) {
-    return Math.max(ms, MIN_SCHEDULER_INTERVAL_MS);
-}
 let idPool = 0;
 let tasks = [];
+const MIN_SCHEDULER_INTERVAL = 0.1;
 function setTimeout(callback, ms) {
     const id = idPool++;
-    const delayMs = clampSchedulerMs(ms);
     tasks.unshift({
         id,
-        atSeconds: Instance.GetGameTime() + delayMs / 1000,
+        atSeconds: Instance.GetGameTime() + ms / 1000,
         callback,
     });
     return id;
 }
 function setInterval(callback, ms) {
     const id = idPool++;
-    const delayMs = clampSchedulerMs(ms);
+    const intervalSeconds = Math.max(MIN_SCHEDULER_INTERVAL, ms / 1000);
     tasks.unshift({
         id,
-        everyNSeconds: delayMs / 1000,
-        atSeconds: Instance.GetGameTime() + delayMs / 1000,
+        everyNSeconds: intervalSeconds,
+        atSeconds: Instance.GetGameTime() + intervalSeconds,
         callback,
     });
     return id;
@@ -2708,11 +2703,11 @@ Instance.OnScriptInput("SetChewie", (data) => {
 });
 Instance.OnScriptInput("CheckChewie", () => {
     if (chewie !== undefined) {
-        EntFire("server", "Command", "say chewie is a stupid malay", 0.00);
-        EntFire("server", "Command", "say chewie is a stupid malay", 0.01);
-        EntFire("server", "Command", "say chewie is a stupid malay", 0.02);
-        EntFire("server", "Command", "say chewie is a stupid malay", 0.03);
-        EntFire("server", "Command", "say chewie is a stupid malay", 0.04);
+        EntFire("server", "Command", "say 有个猪头", 0.00);
+        EntFire("server", "Command", "say 有个猪头***", 0.01);
+        EntFire("server", "Command", "say 有个猪头", 0.02);
+        EntFire("server", "Command", "say 有个猪头", 0.03);
+        EntFire("server", "Command", "say 有个猪头", 0.04);
     }
 });
 let light = undefined;
@@ -3078,7 +3073,7 @@ Instance.OnScriptInput("PostCheck", () => {
 });
 // ZONE CHECK \\
 // WALLA BUTTON \\
-const walla_tickrate = MIN_SCHEDULER_INTERVAL_SECONDS;
+const walla_tickrate = 0.1;
 let walla_speed = 5;
 let walla_radius = 128;
 const walla_origin = new Vec3(13824, 13064, -736);
@@ -3136,7 +3131,7 @@ Instance.OnScriptInput("ShotButton", (data) => {
 function hit(index, activator, caller) {
     if (walla_active && !walla_cd && activator?.GetHealth() > 0) {
         walla_cd = true;
-        EntFire(script_korea, "RunScriptInput", "SetWallaCooldown", MIN_SCHEDULER_INTERVAL_SECONDS);
+        EntFire(script_korea, "RunScriptInput", "SetWallaCooldown", 0.02);
         if (index === (1 + walla_order) || (index === 6 && walla_order === 6)) {
             if (index === 9) {
                 walla_active = false;
@@ -3206,7 +3201,7 @@ Instance.OnScriptInput("WallaDelay", () => {
 // GACHI GAPE \\
 const grave_hpadd = 4000;
 const grave_damage = 1000;
-const gape_tickrate = MIN_SCHEDULER_INTERVAL_SECONDS;
+const gape_tickrate = 0.1;
 const tickrate_castle = 1;
 const castle_range_check = 200;
 let gape_frame = 0;
@@ -3466,7 +3461,7 @@ Instance.OnScriptInput("PringlesTick", () => {
 Instance.OnScriptInput("StartColorTicking", (data) => {
     EntFireTarget(data.caller, "Start");
     color_ticking = true;
-    EntFire(script_korea, "RunScriptInput", "OverlayColor", MIN_SCHEDULER_INTERVAL_SECONDS);
+    EntFire(script_korea, "RunScriptInput", "OverlayColor", 0.1);
 });
 Instance.OnScriptInput("StopColorTicking", (data) => {
     color_ticking = false;
@@ -3476,7 +3471,7 @@ Instance.OnScriptInput("OverlayColor", () => {
     pringles_color = overlayColor(pringles_color, 20, 125);
     EntFire("pringles_overlay", "setcolortint", pringles_color + " " + pringles_color + " " + pringles_color);
     if (color_ticking)
-        EntFire(script_korea, "RunScriptInput", "OverlayColor", MIN_SCHEDULER_INTERVAL_SECONDS);
+        EntFire(script_korea, "RunScriptInput", "OverlayColor", 0.1);
     else
         return;
 });
@@ -3665,7 +3660,7 @@ class Soldier {
     TARGET_TIME = 5;
     KICK_DAMAGE = 9;
     TICKRATE_IDLE = getRandomFloat(2.5, 3.0);
-    TICKRATE = MIN_SCHEDULER_INTERVAL_SECONDS;
+    TICKRATE = 0.1;
     JUMPING_TIMEOUT = 0.5;
     FORWARD_TIMEOUT = 0.5;
     CLEANUP_TIME = 5;
@@ -3758,7 +3753,7 @@ class Soldier {
                 this.airblock = false;
                 if (!traceLine(self_origin, Vector3Utils.add(self_origin, new Vec3(0, 0, -36))).didHit) {
                     this.falling = true;
-                    EntFire("i_nksoldier_model" + this.PF, "SetAnimationLooping", "falling");
+                    EntFire("i_nksoldier_model" + this.PF, "SetAnimationLooping", "idle_alt1");
                 }
                 else if (this.falling) {
                     this.falling = false;
@@ -3805,7 +3800,7 @@ class Soldier {
         if (hlist.length > 0) {
             const target = hlist[getRandomInt(0, hlist.length - 1)];
             if (this.jumping) {
-                EntFire("i_nksoldier_model" + this.PF, "SetAnimationLooping", "falling");
+                EntFire("i_nksoldier_model" + this.PF, "SetAnimationLooping", "idle_alt1");
             }
             else {
                 EntFire("i_nksoldier_model" + this.PF, "SetAnimationLooping", "run");
@@ -3827,14 +3822,14 @@ class Soldier {
             this.jumping = true;
             const vel = this.SELF.GetAbsVelocity();
             this.SELF.Teleport({ velocity: new Vec3(vel.x, vel.y, 950) });
-            EntFire("i_nksoldier_model" + this.PF, "SetAnimationLooping", "falling");
+            EntFire("i_nksoldier_model" + this.PF, "SetAnimationLooping", "idle_alt1");
         }
     }
     Kick() {
         if (!this.kicking) {
             this.kicking = true;
             EntFire("i_nksoldier_s_kick" + this.PF, "StartSound");
-            EntFire("i_nksoldier_model" + this.PF, "SetAnimationNotLooping", "kick");
+            EntFire("i_nksoldier_model" + this.PF, "SetAnimationNotLooping", "idle_alt1");
             EntFire("i_nksoldier_model" + this.PF, "SetDefaultAnimationLooping", "run");
             const hp = this.target.GetHealth() - this.KICK_DAMAGE;
             EntFireTarget(this.target, "SetHealth", hp);
@@ -3854,7 +3849,7 @@ class Soldier {
                 this.target = activator;
                 EntFire("i_nksoldier_s_target" + this.PF, "StartSound");
                 if (this.jumping) {
-                    EntFire("i_nksoldier_model" + this.PF, "SetAnimationLooping", "falling");
+                    EntFire("i_nksoldier_model" + this.PF, "SetAnimationLooping", "idle_alt1");
                 }
                 else {
                     EntFire("i_nksoldier_model" + this.PF, "SetAnimationLooping", "run");
@@ -3877,8 +3872,8 @@ class Soldier {
         this.dead = true;
         EntFire("i_nksoldier_s_die" + this.PF, "StartSound");
         EntFire("i_nksoldier_s_target" + this.PF, "StopSound");
-        EntFire("i_nksoldier_model" + this.PF, "SetAnimationNotLooping", "die");
-        EntFire("i_nksoldier_model" + this.PF, "SetDefaultAnimationLooping", "dieidle");
+        EntFire("i_nksoldier_model" + this.PF, "SetAnimationNotLooping", "spawn");
+        EntFire("i_nksoldier_model" + this.PF, "SetDefaultAnimationLooping", "idle");
         const self_angle = new Euler(this.SELF.GetAbsAngles());
         self_angle.yaw += 180;
         const vec = self_angle.forward;
@@ -3924,7 +3919,7 @@ class Baby {
     TARGET_DISTANCE = 2000;
     TARGET_TIME = 5;
     TICKRATE_IDLE = getRandomFloat(2.7, 3.3);
-    TICKRATE = MIN_SCHEDULER_INTERVAL_SECONDS;
+    TICKRATE = 0.1;
     JUMPING_TIMEOUT = 0.5;
     FORWARD_TIMEOUT = 0.5;
     CLEANUP_TIME = 5;
@@ -4326,10 +4321,11 @@ class KimJongUn {
                 EntFire("town_boss_zpushend", "Enable");
                 EntFire("babyboss_phys", "DisableMotion");
                 EntFire("babyboss_s_1", "StartSound");
-                EntFire("babyboss_model", "SetAnimationNotLooping", "dying");
-                EntFire("babyboss_model", "SetDefaultAnimationLooping", "dead");
+                EntFire("babyboss_model", "SetAnimationNotLooping", "spawn");
+                EntFire("babyboss_model", "SetDefaultAnimationLooping", "death");
                 EntFire("server", "Command", "say ***YOUNG BABY KIM IS DEAD***");
                 EntFire("server", "Command", "say ***WHAT HAVE YOU DONE...***", 1.00);
+                EntFire("babyboss_model", "kill", 1.30);
                 EntFire("town_enddoor", "Open", "", 2.00);
                 EntFire("server", "Command", "say ***TAKE SHELTER INSIDE, QUICK!***", 2.00);
                 EntFire("server", "Command", "say ***ZOMBIES RELEASE IN 5 SECONDS***", 8.00);
@@ -4352,11 +4348,11 @@ class KimJongUn {
             EntFire("babyboss_phys", "EnableMotion", "", 13.00);
             this.KICK_DAMAGE = 90;
             EntFire("babyboss_s_4", "StartSound");
-            EntFire("babyboss_model", "SetAnimationNotLooping", "hurt_sit");
-            EntFire("babyboss_model", "SetDefaultAnimationLooping", "sit_crybaby");
+            EntFire("babyboss_model", "SetAnimationNotLooping", "run");
+            EntFire("babyboss_model", "SetDefaultAnimationLooping", "spawn");
             EntFire("babyrush_anger_sound", "StartSound", "", 5.00);
-            EntFire("babyboss_model", "SetAnimationNotLooping", "sit_gotocrawl", 12);
-            EntFire("babyboss_model", "SetDefaultAnimationLooping", "crawling", 12);
+            EntFire("babyboss_model", "SetAnimationNotLooping", "idle_alt1", 12);
+            EntFire("babyboss_model", "SetDefaultAnimationLooping", "run", 12);
             setTimeout(() => {
                 this.speedanim = true;
             }, 14.5 * 1000);
@@ -4412,7 +4408,7 @@ class KimJongUn {
 let baby_kim;
 Instance.OnScriptInput("KimStart", (data) => {
     baby_kim = new KimJongUn(data.caller);
-    EntFire("babyboss_model", "SetAnimationLooping", "dance");
+    EntFire("babyboss_model", "SetAnimationLooping", "run");
     baby_kim.HP = Instance.FindEntityByName("babyboss_hp");
     baby_kim.lastpos = data.caller.GetAbsOrigin();
     baby_kim.TargetPlayer();
@@ -4737,12 +4733,12 @@ function findByNameNearest(name, origin, radius) {
     }
     return nearest_ent;
 }
-Instance.SetNextThink(Instance.GetGameTime() + MIN_SCHEDULER_INTERVAL_SECONDS);
+Instance.SetNextThink(Instance.GetGameTime() + MIN_SCHEDULER_INTERVAL);
 Instance.SetThink(() => {
-    Instance.SetNextThink(Instance.GetGameTime() + MIN_SCHEDULER_INTERVAL_SECONDS);
+    Instance.SetNextThink(Instance.GetGameTime() + MIN_SCHEDULER_INTERVAL);
     runSchedulerTick();
 });
 // If shit hits the fan...
 Instance.OnScriptInput("SetNextThink", () => {
-    Instance.SetNextThink(Instance.GetGameTime() + MIN_SCHEDULER_INTERVAL_SECONDS);
+    Instance.SetNextThink(Instance.GetGameTime() + MIN_SCHEDULER_INTERVAL);
 });
