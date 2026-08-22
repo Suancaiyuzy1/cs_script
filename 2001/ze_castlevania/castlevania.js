@@ -1080,6 +1080,7 @@ Instance.OnRoundStart(() => {
     {
         Instance.EntFireAtName({ name: "s1_boat_human", input: "Kill" }); // FIX VIS
         Instance.EntFireAtName({ name: "s1_boat_human_zladder", input: "Kill" }); // FIX VIS
+        Instance.EntFireAtName({ name: "skybox_lightprobe", input: "Kill" }); // FOR SOME REASON COMBINED LIGHTPROBE IS BROKEN OUTSIDE OF TOOLS MODE.
     }
     if(STAGE !== 2)
     {
@@ -2206,7 +2207,7 @@ Instance.OnScriptInput("BossTick", ({caller, activator}) => {
 	{
 		if(ptarget?.IsValid() && IsPlayer(ptarget) && ptarget.IsAlive() && ptarget.GetTeamNumber() === 3)
 		{
-			BehaviourTick(deltaTime);
+			BehaviourTick();
 			current_tar_time -= deltaTime;
 			if(current_tar_time <= 0.00)
             {
@@ -2222,7 +2223,7 @@ Instance.OnScriptInput("BossTick", ({caller, activator}) => {
 	Instance.EntFireAtTarget({ target: script_ent, input: "RunScriptInput", value: `BossTick`, delay: BOSS_TICKRATE });
 });
 
-function BehaviourTick(deltaTime = BOSS_TICKRATE)
+function BehaviourTick()
 {
     if(!boss_physbox?.IsValid() || !ptarget?.IsValid()) return;
 
@@ -2235,7 +2236,7 @@ function BehaviourTick(deltaTime = BOSS_TICKRATE)
 
         if(moved < STUCK_DISTANCE)
         {
-            stuckTime += deltaTime;
+            stuckTime += BOSS_TICKRATE;
         }
         else
         {
